@@ -16,7 +16,7 @@ int main()
 	srand((unsigned) time(0));
 	int digit;
 	
-	for (int i = 0; i < 5; i++){
+	for (int i = 0; i < 10; i++){ //h1 and h2 would have 10 digit
 		digit = (rand()%10); //random digit 0-9
 		hi1.insertDigit(digit); //insert digit
 		digit = (rand()%10); //random digit 0-9

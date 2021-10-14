@@ -8,10 +8,15 @@
 using namespace std;
 
 HugeInt::HugeInt() {
+    //for the adding thing, it makes a new node when the result.numDigits == 0.
+    //When declaring new HugeInt, (e.g. make HugeInt hugeinteger. It will internally call
+    //HugeInt function and make a new node. )
     Node *node=new Node;
     node->digit=0;
     this->lsd=node;
     this->msd=node;
+    //one node is one digit. if there is 123, then there is 3 nodes.
+    //since there is 1 node, 1 number goes into the result, result's numDigit will increment by 1.
     node->next_greater=node;
     node->next_lesser=node;
     this->sign = PLUS;
@@ -19,18 +24,18 @@ HugeInt::HugeInt() {
 }
 
 HugeInt::~HugeInt() {
-//    delete this;
+    delete this;
 }
 
 bool HugeInt::operator<(HugeInt second) {
     if (this->sign==PLUS && second.sign==MINUS)
-        return false;
+        return false; //e.g. 1 and -9000. -9000 is smaller
     
     if (this->sign==MINUS && second.sign==PLUS)
-        return true;
+        return true; //e.g. -105 and 93. -105 is smaller
     
     if (this->numDigits < second.numDigits && this->sign==PLUS)
-        return true;
+        return true; 
     
     if (this->numDigits < second.numDigits && this->sign==MINUS)
         return false;
@@ -112,12 +117,33 @@ HugeInt HugeInt::operator+ (HugeInt second) {
 //    switch (signCompareResult)
     if (signCompareResult==1 | signCompareResult==2 )
     {
-    
-            Node* l1 = this->lsd;
+    /*
+    EXAMPLE: 
+    12345 (l1's numDigit is 5)
+    +3456 (m1's numDigit is 4)
+    ------
+    15801
+    ____________EXAMPLE 2____________
+    6789+12121 how to add?
+    12121 (second. l1, because it's always pointing to long.)
+    +6789 (this. m1, because it's always pointing to short.)
+    ------
+
+    the carry.
+    Assume that l1 is larger than m1 in the absolute value. It starts with lsd and 
+    moves on to the next digit, and this is numDigits of this, or the object itself than 
+    second.
+    longNumDigits are set to this. Short numDigits are set to the second. If this is less
+    than second, then need to re-assign.
+    */
+            Node* l1 = this->lsd; 
             Node* m1 = second.lsd;
             int longNumDigits=this->numDigits;
             int shortNumDigits=second.numDigits;
-
+    /* If the numDigits of this is smaller than the numDigits of second, then make l1
+    points to second, m1 points to this second. 
+    LongNumDigits are set to numDigits of second and shortNumDigits are set to numDigits
+    of this.*/
     
             if (this->numDigits < second.numDigits)
             {
@@ -126,21 +152,31 @@ HugeInt HugeInt::operator+ (HugeInt second) {
                 longNumDigits=second.numDigits;
                 shortNumDigits=this->numDigits;
             }
-        
+    /*l1 is with longNumDigits and m1 is with shortNumDigits.*/    
             int carry = 0; //carry is set 1 if 2 sum of 2 digits is >= 10
-            for (int i = 0;i < longNumDigits;i++)
-            {
+            for (int i = 0;i < longNumDigits;i++) //iterating throuugh longnumdigits
+            {//every digits user adds, it makes a new node to add the sum in result of the addition
                 if (i < shortNumDigits)
                 {
+                    /*
+                    when a HugeInt is constructed, constructor would make one node and set the numDigits to zero.
+
+                    HugeInt result contains the result of addition in its linked list.
+                    If the result is zero, it means that the result was just created
+                    with an empty node inside, simply store the result of addition of both lsd into the node. 
+                    There is no need to create a new node.
+                    */
                     if (l1->digit + m1->digit + carry <= 9)
                     {
-                        if (result.numDigits==0)
+                        if (result.numDigits==0) //declare result as part of it.
+                        //result has been made with an empty node. ^
                         {
                             result.lsd->digit = l1->digit + m1->digit + carry;
                             result.numDigits++;
                         }
                         else
                         {
+                            // If result.numDigits is not zero, it means there are already digits inside the HugeInt result. It stores the resulf of the addition and +carry. 
                             Node *newNode=new Node;
                             Node *workNode=result.msd;
                             newNode->digit=l1->digit + m1->digit + carry;
